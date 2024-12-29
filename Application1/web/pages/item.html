@@ -2,9 +2,244 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Item Form</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITEM Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Item Form</h1>
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">POS System</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="../index.html">Customer</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#itemsSection">Item</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="placeOrder.html">Place Order</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h2 class="text-center">ITEM FORM</h2>
+
+    <!-- Customer Form -->
+    <form id="customerForm" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="code" class="form-label">Item Code</label>
+                <input type="text" class="form-control" id="code" placeholder="Enter Item Code" required>
+            </div>
+
+            <div class="col-md-4">
+                <label for="description" class="form-label">Description</label>
+                <input type="text" class="form-control" id="description" placeholder="Enter Description" required>
+            </div>
+
+            <div class="col-md-4">
+                <label for="qty" class="form-label">Item Qty</label>
+                <input type="text" class="form-control" id="qty" placeholder="Enter Item Qty" required>
+            </div>
+            <div class="col-md-4">
+                <label for="price" class="form-label">Unit Price</label>
+                <input type="text" class="form-control" id="price" placeholder="Enter Item Price" required>
+            </div>
+       </div>
+
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <button type="button" class="btn btn-primary btn-sm" id="addItem">Load</button>
+            <button type="button" class="btn btn-success btn-sm" id="saveItem">Save</button>
+            <button type="button" class="btn btn-warning btn-sm" id="updateItem">Update</button>
+        </div>
+    </form>
+
+    <!-- Item Table -->
+    <h3>Item Details</h3>
+    <table class="table table-bordered table-hover" id="customerTable">
+        <thead class="table-dark">
+        <tr>
+            <th>Item Code</th>
+            <th>Description</th>
+            <th>qty</th>
+            <th>Unit price</th> <!-- Added Action column -->
+        </tr>
+        </thead>
+        <tbody id="itemTableBody">
+        <!-- Rows will be added dynamically -->
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assests/js/jquery-3.7.1.min.js"></script>
+
+<!--<script>
+    // ===================Load all customers====================
+    $('#addCustomer').click(function () {
+        $.ajax({
+            url: 'http://localhost:8080/Application1_Web_exploded/customer',
+            method: 'GET',
+            success: function (res) {
+                console.log(res);
+                $('#customerTableBody').empty(); // Clear the table
+
+                res.forEach(customer => {
+                    $('#customerTableBody').append(`
+                        <tr id="customer-${customer.customerId}">
+                            <td>${customer.customerId}</td>
+                            <td>${customer.address}</td>
+                            <td>${customer.customerName}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCustomer('${customer.customerId}')">Delete</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            },
+            error: function (err) {
+                console.error("Error fetching customers:", err);
+            }
+        });
+    });
+
+    // ===================Save customer to the database=============
+    $('#saveCustomer').click(function () {
+        let customerId = $('#customerId').val();
+        let address = $('#customerAddress').val();
+        let customerName = $('#customerName').val();
+
+        // Validate form fields
+        if (!customerId || !address || !customerName) {
+            alert("Please fill in all fields!");
+            return;
+        }
+
+        // Send data to the servlet via AJAX
+        $.ajax({
+            url: 'http://localhost:8080/Application1_Web_exploded/customer',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                customerId: customerId,
+                address: address,
+                customerName: customerName
+            }),
+            success: function (res) {
+                console.log("Customer saved successfully:", res);
+                // After successful insertion, add customer data to the table
+                $('#customerTableBody').append(`
+                    <tr>
+                        <td>${customerId}</td>
+                        <td>${address}</td>
+                        <td>${customerName}</td>
+                        <td><button class="btn btn-danger btn-sm" onclick="deleteCustomer('${customerId}')">Delete</button></td>
+                    </tr>
+                `);
+
+                // Clear the input fields
+                $('#customerId').val('');
+                $('#customerAddress').val('');
+                $('#customerName').val('');
+            },
+            error: function (err) {
+                console.error("Error saving customer:", err);
+                alert("Failed to save customer. Please try again!");
+            }
+        });
+    });
+
+    // ==========================Delete customer=====================
+    function deleteCustomer(customerId) {
+        if (confirm("Are you sure you want to delete this customer?")) {
+            $.ajax({
+                url: 'http://localhost:8080/Application1_Web_exploded/customer',
+                method: 'DELETE',
+                contentType: 'application/json',
+                data: JSON.stringify({customerId: customerId}),
+                success: function (res) {
+                    console.log("Customer deleted successfully:", res);
+                    // Remove the customer row from the table
+                    $(`#customer-${customerId}`).remove();
+                },
+                error: function (err) {
+                    console.error("Error deleting customer:", err);
+                    alert("Failed to delete customer. Please try again!");
+                }
+            });
+        }
+    }
+
+    //====================Update Customer=======================
+    $('#updateCustomer').click(function () {
+        let customerId = $('#customerId').val();
+        let address = $('#customerAddress').val();
+        let customerName = $('#customerName').val();
+
+        // Validate form fields
+        if (!customerId || !address || !customerName) {
+            alert("Please fill in all fields!");
+            return;
+        }
+
+        // Send updated data to the servlet via AJAX
+        $.ajax({
+            url: 'http://localhost:8080/Application1_Web_exploded/customer',
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                customerId: customerId,
+                address: address,
+                customerName: customerName
+            }),
+            success: function (res) {
+                console.log("Customer updated successfully:", res);
+
+                // Update the customer row in the table
+                $(`#customer-${customerId}`).find('td').eq(1).text(address);
+                $(`#customer-${customerId}`).find('td').eq(2).text(customerName);
+
+                // Reset form and buttons
+                $('#customerId').val('');
+                $('#customerAddress').val('');
+                $('#customerName').val('');
+                $('#saveCustomer').show();
+                // $('#updateCustomer').hide();
+            },
+            error: function (err) {
+                console.error("Error updating customer:", err);
+                alert("Failed to update customer. Please try again!");
+            }
+        });
+    });
+
+    // =================Search Customer===========================
+    $('#customerTableBody').on('click', 'tr', function () {
+        const customerId = $(this).find('td').eq(0).text();
+        const address = $(this).find('td').eq(1).text();
+        const customerName = $(this).find('td').eq(2).text();
+
+        $('#customerId').val(customerId);
+        $('#customerAddress').val(address);
+        $('#customerName').val(customerName);
+    });
+
+    // Reset form and show Save button when form is reset
+    $('#customerForm').on('reset', function () {
+        $('#saveCustomer').show();
+    });
+
+
+</script>-->
+
 </body>
 </html>
