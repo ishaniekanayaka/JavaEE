@@ -72,6 +72,7 @@
             <th>Description</th>
             <th>qty</th>
             <th>Unit price</th> <!-- Added Action column -->
+            <th>Action</th>
         </tr>
         </thead>
         <tbody id="itemTableBody">
@@ -102,7 +103,9 @@
                             <td>${item.qty}</td>
                             <td>${item.unitPrice}</td>
                             <!-- Added Action column -->
-
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteItem('${item.code}')">Delete</button>
+                            </td>
                         </tr>
                     `);
                 });
@@ -112,8 +115,6 @@
             }
         });
     });
-
-    //==========Save Item to the database =================
     //==========Save Item to the database =================
     $('#saveItem').click(function () {
         let code = $('#code').val().trim();
@@ -153,6 +154,8 @@
                     <td>${description}</td>
                     <td>${qty}</td>
                     <td>${unitPrice}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteItem('${code}')">Delete</button></td>
+
                 </tr>
             `);
 
@@ -170,6 +173,148 @@
             }
         });
     });
+
+
+    // Delete item function
+    function deleteItem(code) {
+        if (confirm("Are you sure you want to delete this item?")) {
+            $.ajax({
+                url: 'http://localhost:8080/Application1_Web_exploded/item',
+                method: 'DELETE',
+                contentType: 'application/json',
+                data: JSON.stringify({code: code}),
+                success: function (res) {
+                    console.log("Item deleted successfully:", res);
+                    // Remove the customer row from the table
+                    $(`#item-${code}`).remove();
+                },
+                error: function (err) {
+                    console.error("Error deleting item:", err);
+                    alert("Failed to delete item. Please try again!");
+                }
+            });
+        }
+    }
+
+    /*//====================Update Customer=======================
+    $('#updateItem').click(function () {
+        let code = $('#code').val();
+        let description = $('#description').val();
+        let qty = $('#qty').val();
+        let unitPrice = $('#unitPrice').val();
+
+        // Validate form fields
+        if (!code || !description || !qty || !unitPrice) {
+            alert("Please fill in all fields!");
+            return;
+        }
+
+        // Send updated data to the servlet via AJAX
+        $.ajax({
+            url: 'http://localhost:8080/Application1_Web_exploded/item',
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                code: code,
+                description: description,
+                qty: qty,
+                unitPrice: unitPrice
+            }),
+            success: function (res) {
+                console.log("Item updated successfully:", res);
+
+                // Update the customer row in the table
+                $(`#item-${code}`).find('td').eq(1).text(description);
+                $(`#item-${code}`).find('td').eq(2).text(qty);
+                $(`#item-${code}`).find('td').eq(2).text(unitPrice);
+
+                // Reset form and buttons
+                $('#code').val('');
+                $('#description').val('');
+                $('#qty').val('');
+                $('#unitPrice').val('');
+                $('#saveCustomer').show();
+                // $('#updateCustomer').hide();
+            },
+            error: function (err) {
+                console.error("Error updating Item:", err);
+                alert("Failed to update item. Please try again!");
+            }
+        });
+    });*/
+
+    //====================Update Item=======================
+    $('#updateItem').click(function () {
+        let code = $('#code').val().trim();
+        let description = $('#description').val().trim();
+        let qty = $('#qty').val().trim();
+        let unitPrice = $('#unitPrice').val().trim();
+
+        // Validate form fields
+        if (!code || !description || !qty || !unitPrice) {
+            alert("Please fill in all fields!");
+            return;
+        }
+
+        // Ensure qty and unitPrice are numeric
+        if (isNaN(qty) || isNaN(unitPrice)) {
+            alert("Quantity and Unit Price should be numeric values.");
+            return;
+        }
+
+        // Send updated data to the servlet via AJAX
+        $.ajax({
+            url: 'http://localhost:8080/Application1_Web_exploded/item',
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                code: code,
+                description: description,
+                qty: parseInt(qty), // Convert to integer
+                unitPrice: parseFloat(unitPrice) // Convert to float
+            }),
+            success: function (res) {
+                console.log("Item updated successfully:", res);
+
+                // Update the item row in the table
+                const row = $(`#item-${code}`);
+                row.find('td').eq(1).text(description);
+                row.find('td').eq(2).text(qty);
+                row.find('td').eq(3).text(unitPrice);
+
+                // Reset form and buttons
+                $('#code').val('');
+                $('#description').val('');
+                $('#qty').val('');
+                $('#unitPrice').val('');
+
+                alert("Item updated successfully!");
+            },
+            error: function (err) {
+                console.error("Error updating Item:", err);
+                alert("Failed to update item. Please try again!");
+            }
+        });
+    });
+
+    // =================Search Customer===========================
+    $('#itemTableBody').on('click', 'tr', function () {
+        const code = $(this).find('td').eq(0).text();
+        const description = $(this).find('td').eq(1).text();
+        const qty = $(this).find('td').eq(2).text();
+        const unitPrice = $(this).find('td').eq(3).text();
+
+        $('#code').val(code);
+        $('#description').val(description);
+        $('#qty').val(qty);
+        $('#unitPrice').val(unitPrice);
+    });
+
+    // Reset form and show Save button when form is reset
+    $('#itemForm').on('reset', function () {
+        $('#saveItem').show();
+    });
+
 
 </script>
 
