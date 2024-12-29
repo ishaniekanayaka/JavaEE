@@ -112,6 +112,65 @@
             }
         });
     });
+
+    //==========Save Item to the database =================
+    //==========Save Item to the database =================
+    $('#saveItem').click(function () {
+        let code = $('#code').val().trim();
+        let description = $('#description').val().trim();
+        let qty = $('#qty').val().trim();
+        let unitPrice = $('#unitPrice').val().trim();
+
+        // Basic validation
+        if (!code || !description || !qty || !unitPrice) {
+            alert("Please fill in all fields");
+            return;
+        }
+
+        // Ensure qty and unitPrice are numeric
+        if (isNaN(qty) || isNaN(unitPrice)) {
+            alert("Quantity and Unit Price should be numeric values.");
+            return;
+        }
+
+        $.ajax({
+            url: 'http://localhost:8080/Application1_Web_exploded/item',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                code: code,
+                description: description,
+                qty: parseInt(qty), // Convert to integer
+                unitPrice: parseFloat(unitPrice) // Convert to float
+            }),
+            success: function (res) {
+                console.log("Item Saved successfully:", res);
+
+                // Add the new item to the table
+                $('#itemTableBody').append(`
+                <tr id="item-${code}">
+                    <td>${code}</td>
+                    <td>${description}</td>
+                    <td>${qty}</td>
+                    <td>${unitPrice}</td>
+                </tr>
+            `);
+
+                // Clear form fields
+                $('#code').val('');
+                $('#description').val('');
+                $('#qty').val('');
+                $('#unitPrice').val('');
+
+                alert("Item saved successfully!");
+            },
+            error: function (err) {
+                console.error("Error saving Item: ", err);
+                alert("Failed to save Item. Please try again!");
+            }
+        });
+    });
+
 </script>
 
 </body>
