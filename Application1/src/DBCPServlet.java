@@ -21,20 +21,20 @@ import java.sql.SQLException;
 public class DBCPServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        BasicDataSource ds = new BasicDataSource();
+       /* BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName("com.mysql.jdbc.Driver");
         ds.setUrl("jdbc:mysql://localhost:3306/book");
         ds.setUsername("root");
         ds.setPassword("Ijse@123");
         ds.setMaxTotal(5);
-        ds.setInitialSize(5);
+        ds.setInitialSize(5);*/
 
         //comming interface to all servlet
         ServletContext servletContext = req.getServletContext();
-        //BasicDataSource ds = (BasicDataSource)servletContext.getAttribute("dataSource");
-      servletContext.setAttribute("datasourse",ds);
+        BasicDataSource ds = (BasicDataSource)servletContext.getAttribute("dataSource");
+      /*servletContext.setAttribute("datasourse",ds);
         System.out.println("DBCP servlet doGet");
-
+*/
         try  {
 
             Connection connection = ds.getConnection();

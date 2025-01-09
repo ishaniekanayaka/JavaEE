@@ -34,7 +34,9 @@ public class test1Servlet extends HttpServlet {
                 System.out.println(customerId + ""+ customerName + "" + address);
 
             }
+            connection.close();
             // Set response content type to JSON and send the response
+
             resp.setContentType("application/json");
         } catch ( SQLException e) {
             throw new RuntimeException();
